@@ -88,7 +88,7 @@ def plot_row(ax, objects, plot_func):
 def plot_grid(objects, plot_func, ncols=4, fig_width=18):
     '''
     Creates a grid of ncols width and len(objects)//ncols height and plots objects with plot_func
-    :param objects (iterable): list of objects to plot
+    :param objects (list): list of objects to plot
     :param plot_func: function that will handle plotting of an object
     :param ncols (int): number of columns in a grid
     :param fig_width: width of a figure
@@ -96,9 +96,12 @@ def plot_grid(objects, plot_func, ncols=4, fig_width=18):
     '''
     nrows = len(objects) // ncols + bool(len(objects) % ncols)
     fig, ax = plt.subplots(nrows, ncols, figsize=(fig_width, nrows*5))
+    # dummy workaround in the case of one-row grid
+    if len(objects) <= ncols:
+        ax = [ax]
 
     for i in range(nrows):
-        slc = list(itertools.islice(objects, i*ncols, i*ncols+ncols))
+        slc = objects[i*ncols: i*ncols+ncols]
         plot_row(ax[i], slc, plot_func)
     plt.tight_layout()
     plt.show()
