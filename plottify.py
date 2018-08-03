@@ -1,7 +1,12 @@
+import copy
+
 from matplotlib import pyplot as plt
 from matplotlib import (patheffects,
                         patches)
 
+##############################
+####### DRAW FUNCTIONS #######
+##############################
 def show_img(im, ax=None, figsize=None, show_axs=False):
     ''' Plots an image on ax object. If no ax object was passed, it creates an ax object
     :param im: (np.array) RGM image in np.array format
@@ -59,3 +64,29 @@ def draw_text(ax, coords, txt, sz=14, c='white', val='top', hal='left'):
     text = ax.text(*coords, txt,
                    fontsize=sz, color=c, verticalalignment=val, horizontalalignment=hal, weight='bold')
     return text
+
+##############################
+####### HELP FUNCTIONS #######
+##############################
+
+def geojson_to_plt(geojson, imsize):
+    '''
+    Transforms geojson polygon relative coordinates to matplotlib absolute coordinates (top-left, bot-right)
+
+    :param geojson: (list(list(float))) coordinates of polygon in geojson format
+    :param imsize: tuple(int) height and width of an image
+    :return: tuple(tuple(int, int)) rectangle coordinates in pixels in (top-left, bot-right) format
+    '''
+    geojson = copy.deepcopy(geojson)
+    # scale by image size
+    for point in geojson:
+        point[0] = int(point[0] * imsize[0])
+        # flip y coord
+        point[1] = int((1 - point[1]) * imsize[1])
+
+    # sort to find top left and bottom right corners
+    geojson = sorted(geojson, key=lambda point: (point[0] + point[1]))
+    top_left = geojson[0]
+    bottom_right = geojson[-1]
+    return (top_left, bottom_right)
+
