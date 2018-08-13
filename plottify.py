@@ -136,6 +136,16 @@ def geojson_to_plt(geojson, imsize):
 
 
 def open_img(impath):
-    img = cv2.imread(impath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)[:, :, ::-1]
+    img = cv2.imread(impath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR | cv2.COLOR_BGR2RGB)
     return img
 
+
+def bbox_rel_to_abs(bbox, imshape):
+    '''transforms relative bbox coordinates to absolute'''
+    bbox[0] = int(bbox[0] * imshape[1])  # resize x
+    bbox[2] = int(bbox[2] * imshape[1])  # resize width
+
+    bbox[1] = int(bbox[1] * imshape[0])  # resize y
+    bbox[3] = int(bbox[3] * imshape[0])  # resize height
+
+    return bbox
