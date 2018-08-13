@@ -1,3 +1,5 @@
+import cv2
+
 import itertools
 import copy
 
@@ -131,4 +133,9 @@ def geojson_to_plt(geojson, imsize):
     width = bottom_right[0] - top_left[0]
     height = bottom_right[1] - top_left[1]
     return (top_left, [width, height])
+
+
+def open_img(impath):
+    img = cv2.imread(impath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)[:, :, ::-1]
+    return img
 
