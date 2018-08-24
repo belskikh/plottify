@@ -136,7 +136,8 @@ def geojson_to_plt(geojson, imsize):
 
 
 def open_img(impath):
-    img = cv2.imread(impath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR | cv2.COLOR_BGR2RGB)
+    img = cv2.imread(impath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
 
 
