@@ -172,8 +172,21 @@ def geojson_to_plt(geojson, imsize):
 
 def open_img(impath):
     img = cv2.imread(impath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    if img is not None:
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
+
+
+def resize_keep_ratio(img, max_size):
+    height, width = img.shape[:2]
+    ratio = height / width
+    size = None
+    if height > width:
+        size = (int(max_size / ratio), max_size)
+    else:
+        size = (max_size, int(max_size * ratio))
+
+    return cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
 
 
 def bbox_rel_to_abs(bbox, imshape):
