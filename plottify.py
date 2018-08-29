@@ -170,8 +170,12 @@ def geojson_to_plt(geojson, imsize):
     return (top_left, [width, height])
 
 
-def open_img(impath):
-    img = cv2.imread(impath, cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR)
+def open_img(impath, ignore_orientation=False):
+    if ignore_orientation:
+        binary_flag =  cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR
+    else:
+        binary_flag = cv2.IMREAD_COLOR
+    img = cv2.imread(impath, binary_flag)
     if img is not None:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
