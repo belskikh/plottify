@@ -193,6 +193,13 @@ def resize_keep_ratio(img, max_size):
     return cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
 
 
+def crop_img(img, imshape):
+    top_pad = (img.shape[0] - imshape[0]) // 2
+    left_pad = (img.shape[1] - imshape[1]) // 2
+
+    return img[top_pad: imshape[0] + top_pad, left_pad: imshape[1] + left_pad]
+
+
 def bbox_rel_to_abs(bbox, imshape):
     '''transforms relative bbox coordinates to absolute'''
     bbox[0] = int(bbox[0] * imshape[1])  # resize x
