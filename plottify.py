@@ -3,8 +3,8 @@ import cv2
 import itertools
 import copy
 
-import numpy as np
 from matplotlib import pyplot as plt
+import numpy as np
 from matplotlib import (patheffects,
                         patches)
 
