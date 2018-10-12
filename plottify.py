@@ -8,6 +8,11 @@ import numpy as np
 from matplotlib import (patheffects,
                         patches)
 
+
+__all__ = ["show_img", "draw_outline", "draw_rect", "draw_text", "plot_grid",
+           "rle_from_masked", "mask_from_rle", "geojson_to_plt",
+           "open_img", "resize_keep_ratio", "crop_img", "bbox_rel_to_abs"]
+
 ##############################
 ####### DRAW FUNCTIONS #######
 ##############################
