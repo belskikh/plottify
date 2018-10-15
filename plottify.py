@@ -180,7 +180,7 @@ def open_img(impath, ignore_orientation=False):
         binary_flag =  cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR
     else:
         binary_flag = cv2.IMREAD_COLOR
-    img = cv2.imread(impath, binary_flag)
+    img = cv2.imread(impath, binary_flag)[:,:,::-1]
     if img is not None:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     return img
