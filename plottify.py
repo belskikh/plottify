@@ -180,9 +180,11 @@ def open_img(impath, ignore_orientation=False):
         binary_flag =  cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR
     else:
         binary_flag = cv2.IMREAD_COLOR
-    img = cv2.imread(impath, binary_flag)[:,:,::-1]
+    img = cv2.imread(impath, binary_flag)
     if img is not None:
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = img[:,:,::-1]
+    else:
+        raise Exception(f"There is no such image '{impath}'")
     return img
 
 
