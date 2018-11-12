@@ -1,3 +1,5 @@
+from pdb import set_trace as st
+
 import cv2
 
 import itertools
@@ -7,11 +9,16 @@ from matplotlib import pyplot as plt
 import numpy as np
 from matplotlib import (patheffects,
                         patches)
+from matplotlib.patches import Polygon
+from matplotlib.collections import PatchCollection
+
+from PIL import Image, ImageDraw
 
 
 __all__ = ["show_img", "draw_outline", "draw_rect", "draw_text", "plot_grid",
            "rle_from_masked", "mask_from_rle", "geojson_to_plt",
-           "open_img", "resize_keep_ratio", "crop_img", "bbox_rel_to_abs"]
+           "open_img", "resize_keep_ratio", "crop_img", "bbox_rel_to_abs",
+           "plot_polygons", "mask_from_polygon"]
 
 ##############################
 ####### DRAW FUNCTIONS #######
@@ -152,29 +159,6 @@ def mask_from_rle(rle, imshape):
 ####### HELP FUNCTIONS #######
 ##############################
 
-def geojson_to_plt(geojson, imsize):
-    '''
-    Transforms geojson polygon relative coordinates to matplotlib absolute coordinates ([x, y], [width, height])
-
-    :param geojson: (list(list(float))) coordinates of polygon in geojson format
-    :param imsize: tuple(int) height and width of an image
-    :return: tuple(tuple(int, int)) rectangle coordinates in pixels in (top-left, bot-right) format
-    '''
-    geojson = copy.deepcopy(geojson)
-    # scale by image size
-    for point in geojson:
-        point[0] = int(point[0] * imsize[1])  # horizontal coord
-        point[1] = int((point[1]) * imsize[0])  # vertical coord
-
-    # sort to find top left and bottom right corners
-    geojson = sorted(geojson, key=lambda point: (point[0] + point[1]))
-    top_left = geojson[0]
-    bottom_right = geojson[-1]
-    width = bottom_right[0] - top_left[0]
-    height = bottom_right[1] - top_left[1]
-    return (top_left, [width, height])
-
-
 def open_img(impath, ignore_orientation=False):
     if ignore_orientation:
         binary_flag =  cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR
@@ -216,3 +200,64 @@ def bbox_rel_to_abs(bbox, imshape):
     bbox[3] = int(bbox[3] * imshape[0])  # resize height
 
     return bbox
+
+
+##############################
+########## POLYGONS ##########
+##############################
+
+def geojson_to_plt(geojson, imsize):
+    '''
+    Transforms geojson polygon relative coordinates to matplotlib absolute coordinates ([x, y], [width, height])
+
+    :param geojson: (list(list(float))) coordinates of polygon in geojson format
+    :param imsize: tuple(int) height and width of an image
+    :return: tuple(tuple(int, int)) rectangle coordinates in pixels in (top-left, bot-right) format
+    '''
+    geojson = copy.deepcopy(geojson)
+    # scale by image size
+    for point in geojson:
+        point[0] = int(point[0] * imsize[1])  # horizontal coord
+        point[1] = int((point[1]) * imsize[0])  # vertical coord
+
+    # sort to find top left and bottom right corners
+    geojson = sorted(geojson, key=lambda point: (point[0] + point[1]))
+    top_left = geojson[0]
+    bottom_right = geojson[-1]
+    width = bottom_right[0] - top_left[0]
+    height = bottom_right[1] - top_left[1]
+    return (top_left, [width, height])
+
+
+def plot_polygons(img, poly_dict, alpha=0.5, ax=None, figsize=None,
+                  show_axs=False):
+    if not ax:
+        fig, ax = plt.subplots(figsize=figsize)
+    show_img(img, ax, figsize, show_axs)
+    patches = []
+    colors = []
+
+    labels = list(poly_dict.keys())
+    for l in labels:
+        color = 100*np.random.rand()
+        for polygons in poly_dict[l]:
+            for poly in polygons:
+                if poly:
+                    # st()
+                    p = np.array(convert_poly(poly, img.shape))
+                    patches.append(Polygon(p, True))
+            colors.append(color)
+    patch_collection = PatchCollection(patches, alpha=alpha)
+    patch_collection.set_array(np.array(colors))
+    ax.add_collection(patch_collection)
+
+
+def convert_poly(poly, imshape):
+    return list(map(lambda p: (int(p[0]*imshape[1]), int(p[1]*imshape[0])),
+                    poly))
+
+
+def mask_from_polygon(polygon, imshape):
+    img = Image.new('L', (imshape[1], imshape[0]), 0)
+    ImageDraw.Draw(img).polygon(polygon, outline=1, fill=1)
+    return np.array(img)
