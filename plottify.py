@@ -2,8 +2,10 @@ from pdb import set_trace as st
 
 import cv2
 
-import itertools
 import copy
+import itertools
+
+from collections import Iterable
 
 from matplotlib import pyplot as plt
 import numpy as np
@@ -18,7 +20,7 @@ from PIL import Image, ImageDraw
 __all__ = ["show_img", "draw_outline", "draw_rect", "draw_text", "plot_grid",
            "rle_from_masked", "mask_from_rle", "geojson_to_plt",
            "open_img", "resize_keep_ratio", "crop_img", "bbox_rel_to_abs",
-           "plot_polygons", "mask_from_polygon"]
+           "plot_polygons", "plot_bboxes", "mask_from_polygon"]
 
 ##############################
 ####### DRAW FUNCTIONS #######
@@ -238,6 +240,7 @@ def plot_polygons(img, poly_dict, alpha=0.5, ax=None, figsize=None,
     colors = []
 
     labels = list(poly_dict.keys())
+    st()
     for l in labels:
         color = 100*np.random.rand()
         for polygons in poly_dict[l]:
@@ -252,7 +255,32 @@ def plot_polygons(img, poly_dict, alpha=0.5, ax=None, figsize=None,
     ax.add_collection(patch_collection)
 
 
+def plot_bboxes(img, bbox_dict, colormap, alpha=0.5, ax=None, figsize=None,
+                show_axs=False):
+    if not ax:
+        fig, ax = plt.subplots(figsize=figsize)
+    show_img(img, ax, figsize, show_axs)
+    patches = []
+    colors = []
+
+    labels = list(bbox_dict.keys())
+    # st()
+    for l in labels:
+        color = colormap[l]
+        for poly in bbox_dict[l]:
+            if poly:
+                # st()
+                p = np.array(convert_poly(poly, img.shape))
+                patches.append(Polygon(p, True))
+            colors.append(color)
+    patch_collection = PatchCollection(patches, alpha=alpha)
+    patch_collection.set_array(np.array(colors))
+    ax.add_collection(patch_collection)
+
+
 def convert_poly(poly, imshape):
+    # if not isinstance(poly[0], Iterable):
+    #     poly = [poly]
     return list(map(lambda p: (int(p[0]*imshape[1]), int(p[1]*imshape[0])),
                     poly))
 
