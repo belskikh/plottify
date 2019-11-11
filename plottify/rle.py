@@ -24,8 +24,11 @@ def rle_from_masked(img: np.ndarray) -> List[int]:
     return rle
 
 
-def mask_from_rle(rle: List[int],
+def mask_from_rle(rle: Union[str, List[Tuple[int, int]]],
                   imshape: Union[List, Tuple]) -> np.ndarray:
+    if type(rle) == str:
+        rle = list(map(int, rle.split()))
+        rle = [rle[i: i+2] for i in range(0, len(rle), 2)]
     mask = np.zeros(imshape[0] * imshape[1], dtype=np.uint8)
     for start, length in rle:
         mask[start: start+length] = 1

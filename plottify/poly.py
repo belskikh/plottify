@@ -42,7 +42,8 @@ def plot_polygons(img: np.ndarray,
                   alpha: float = 0.5,
                   ax: Optional[plt.Figure] = None, 
                   figsize: Optional[Tuple[int, int]] = None,
-                  show_axs: bool = False):
+                  show_axs: bool = False,
+                  convert: bool = False):
     if not ax:
         _, ax = plt.subplots(figsize=figsize)
     show_img(img, ax, figsize, show_axs)
@@ -55,9 +56,9 @@ def plot_polygons(img: np.ndarray,
         for polygons in poly_dict[l]:
             for poly in polygons:
                 if poly:
-                    # st()
-                    p = np.array(convert_poly(poly, img.shape))
-                    patches.append(Polygon(p, True))
+                    if convert:
+                        poly = np.array(convert_poly(poly, img.shape))
+                    patches.append(Polygon(poly, True))
             colors.append(color)
     patch_collection = PatchCollection(patches, alpha=alpha)
     patch_collection.set_array(np.array(colors))
