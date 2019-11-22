@@ -4,8 +4,10 @@ import cv2
 import numpy as np
 
 
-def open_img(impath: str,
-             ignore_orientation=False) -> np.ndarray:
+def open_img(
+        impath: str,
+        ignore_orientation=False
+    ) -> np.ndarray:
     if ignore_orientation:
         binary_flag =  cv2.IMREAD_IGNORE_ORIENTATION | cv2.IMREAD_COLOR
     else:
@@ -18,8 +20,10 @@ def open_img(impath: str,
     return img
 
 
-def resize_keep_ratio(img: np.ndarray, 
-                      max_size: int) -> np.ndarray:
+def resize_keep_ratio(
+        img: np.ndarray, 
+        max_size: int
+    ) -> np.ndarray:
     height, width = img.shape[:2]
     ratio = height / width
     size = None
@@ -31,16 +35,27 @@ def resize_keep_ratio(img: np.ndarray,
     return cv2.resize(img, size, interpolation=cv2.INTER_NEAREST)
 
 
-def crop_img(img: np.ndarray,
-             imshape: Union[List, Tuple]) -> np.ndarray:
+def crop_img(
+        img: np.ndarray,
+        imshape: Union[List, Tuple]
+    ) -> np.ndarray:
     top_pad = (img.shape[0] - imshape[0]) // 2
     left_pad = (img.shape[1] - imshape[1]) // 2
 
     return img[top_pad: imshape[0] + top_pad, left_pad: imshape[1] + left_pad]
 
 
-def bbox_rel_to_abs(bbox: List[float],
-                    imshape: Union[List, Tuple]) -> np.ndarray:
+def crop_img_to_bbox(
+        img: np.ndarray,
+        bbox: Tuple[int, int, int, int]
+    ) -> np.ndarray:
+    return img[bbox[0]: bbox[2], bbox[1]: bbox[3]]
+
+
+def bbox_rel_to_abs(
+        bbox: List[float],
+        imshape: Union[List, Tuple]
+    ) -> np.ndarray:
     '''transforms relative bbox coordinates to absolute'''
     bbox[0] = int(bbox[0] * imshape[1])  # resize x
     bbox[2] = int(bbox[2] * imshape[1])  # resize width
@@ -49,3 +64,13 @@ def bbox_rel_to_abs(bbox: List[float],
     bbox[3] = int(bbox[3] * imshape[0])  # resize height
 
     return bbox
+
+
+def bbox_to_rect(
+        bbox: Tuple[int, int, int, int]
+    ) -> List[Tuple[int, int]]:
+    """Transform skimage bbox to rect for pylab plotting"""
+    xy = bbox[:2]
+    height = bbox[2] - xy[0]
+    width = bbox[3] - xy[1]
+    return [xy[::-1], (width, height)]
